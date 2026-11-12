@@ -1,0 +1,455 @@
+# 🎯 Guia de Implementação - Onde Fazer Cada Alteração
+
+Este guia mostra **exatamente** onde alterar cada arquivo para implementar as funcionalidades do sistema.
+
+## 📁 Estrutura de Arquivos
+
+```
+powerbi-embedded/
+├── 📄 app.py                    # Aplicação principal Flask
+├── 📄 auth.py                   # Sistema de autenticação
+├── 📄 config.py                 # Configurações e relatórios
+├── 📄 powerbi_service.py        # Integração Power BI
+├── 📄 requirements.txt          # Dependências Python
+├── 📄 runtime.txt              # Versão Python
+├── 📄 procfile                 # Deploy Railway
+├── 📁 templates/
+│   ├── 📄 login.html           # Página de login
+│   ├── 📄 dashboard.html       # Dashboard principal
+│   ├── 📄 embed.html           # Visualização de relatório
+│   ├── 📄 reports.html         # Admin - gestão relatórios
+│   └── 📄 error.html          # Páginas de erro
+└── 📁 scripts/
+    ├── 📄 test_integration.py   # Descoberta de relatórios
+    ├── 📄 diagnose_powerbi.py   # Diagnóstico sistema
+    └── 📄 setup_railway_variables.py # Config produção
+```
+
+---
+
+## 👥 1. GERENCIAMENTO DE USUÁRIOS
+
+### 📍 Arquivo: `auth.py` (Linhas 15-65)
+
+#### ➕ **Adicionar Novo Usuário**
+
+**Localização:** Função `get_default_users()` - Linha 15
+
+```python
+def get_default_users():
+    """Usuários padrão APENAS para desenvolvimento/demonstração."""
+    return {
+        # EXISTENTES (manter)
+        "admin": {...},
+        "suedes.carletti": {...},
+        
+        # ✅ ADICIONAR AQUI - Novo usuário
+        "novo.usuario": {
+            "password": hashlib.sha256("senha123".encode()).hexdigest(),
+            "roles": ["viewer"],
+            "region": "SP",
+            "name": "Novo Usuário",
+            "reports": ["executivo", "vendas"]
+        },
+    }
+```
+
+#### 🔐 **Adicionar Nova Role**
+
+**Localização:** Função `get_user_identity()` - Linha 142
+
+```python
+def get_user_identity():
+    # EXISTENTES (manter)
+    if 'admin' in user_roles:
+        identity["roles"].append("AdminRole")
+    if 'finance' in user_roles:
+        identity["roles"].append("FinanceRole")
+    
+    # ✅ ADICIONAR AQUI - Nova role
+    if 'marketing' in user_roles:
+        identity["roles"].append("MarketingRole")
+    if 'nova_role' in user_roles:
+        identity["roles"].append("NovaRole")
+```
+
+#### 🌍 **Adicionar Nova Região**
+
+**Localização:** README e documentação (as regiões são strings livres)
+
+```python
+# Em qualquer lugar onde definir usuário:
+"region": "PR",  # ← Pode usar qualquer região
+```
+
+---
+
+## 📊 2. GERENCIAMENTO DE DASHBOARDS
+
+### 📍 Arquivo: `config.py`
+
+#### ➕ **Adicionar Novo Dashboard via Variáveis de Ambiente**
+
+**Localização:** Função `_get_report_names_from_env()` - Linha 55
+
+Esta função **automaticamente** detecta novos dashboards baseado nas variáveis de ambiente:
+
+```env
+# ✅ ADICIONAR NO RAILWAY - Variables:
+REPORT_ID_NOVODASH=00000000-0000-0000-0000-000000000028
+DATASET_ID_NOVODASH=00000000-0000-0000-0000-000000000029  # opcional
+WORKSPACE_ID_NOVODASH=00000000-0000-0000-0000-000000000030  # opcional
+
+# Metadados:
+METADATA_NOVODASH={"name":"Novo Dashboard","description":"Descrição","category":"vendas","required_roles":["admin","sales"],"background_color":"#002951"}
+```
+
+#### 🎨 **Adicionar Nova Categoria de Dashboard**
+
+**Localização:** Função `_get_report_config_from_env()` - Linha 87
+
+```python
+# Cores por categoria, todas baseadas na cor corporativa
+category_colors = {
+    # EXISTENTES (manter)
+    "executivo": Config.CORPORATE_PRIMARY_COLOR,
+    "gerencial": Config.CORPORATE_PRIMARY_COLOR, 
+    "vendas": "#0d4a73",
+    "financeiro": "#f8f9fa",
+    
+    # ✅ ADICIONAR AQUI - Nova categoria
+    "marketing": "#e3f2fd",
+    "nova_categoria": "#cor_personalizada",
+}
+```
+
+#### 🏷️ **Alterar Nome de Dashboard**
+
+**Localização:** Variável de ambiente `METADATA_*`
+
+```env
+# ✅ ALTERAR NO RAILWAY:
+METADATA_EXECUTIVO={"name":"NOVO NOME AQUI","description":"Nova descrição","category":"executivo",...}
+```
+
+### 📍 Arquivo: `templates/dashboard.html` (Para ícones de categoria)
+
+**Localização:** CSS - Linha 200+
+
+```css
+/* ✅ ADICIONAR AQUI - Ícones para novas categorias */
+.category-marketing .category-icon::before { content: '📢'; }
+.category-nova_categoria .category-icon::before { content: '🆕'; }
+```
+
+---
+
+## 🎨 3. PERSONALIZAÇÃO DE CORES
+
+### 📍 Arquivo: `config.py` - Cores Corporativas
+
+**Localização:** Função `get_corporate_colors()` - Linha 41
+
+```python
+@staticmethod
+def get_corporate_colors():
+    """Retorna paleta de cores corporativas"""
+    return {
+        # ✅ ALTERAR AQUI - Cores corporativas
+        "primary": "#002951",        # ← SUA COR PRINCIPAL
+        "primary_light": "#0d4a73",  # ← Versão mais clara
+        "primary_dark": "#001a2e",   # ← Versão mais escura
+        "background": "#002951",     # ← Fundo padrão
+        # ... outras cores
+    }
+```
+
+**Localização:** Constantes de cor - Linha 30
+
+```python
+# ✅ ALTERAR AQUI - Cor corporativa padrão
+CORPORATE_PRIMARY_COLOR = "#002951"  # ← SUA COR
+CORPORATE_BACKGROUND_COLOR = "#002951"  # ← SUA COR
+```
+
+### 📍 Arquivo: `templates/embed.html` - Aplicação de Cores
+
+**Localização:** CSS Variables - Linha 15
+
+```css
+:root {
+    /* ✅ ALTERAR AQUI - Cores CSS */
+    --corporate-primary: #002951;    /* ← SUA COR */
+    --corporate-light: #0d4a73;     /* ← Versão clara */
+    --corporate-dark: #001a2e;      /* ← Versão escura */
+}
+```
+
+---
+
+## 🔐 4. CONTROLE DE ACESSO E PERMISSÕES
+
+### 📍 Arquivo: `auth.py` - Verificação de Acesso
+
+**Localização:** Função `user_can_access_report()` - Linha 160
+
+```python
+def user_can_access_report(report_name_or_id):
+    # ✅ LÓGICA DE ACESSO ESTÁ AQUI
+    
+    # Admin sempre pode acessar tudo (linha ~175)
+    if 'admin' in user_roles:
+        return True
+    
+    # Verificar se tem acesso a todos os relatórios (linha ~180)
+    if 'all' in user_reports:
+        return True
+    
+    # ✅ ADICIONAR AQUI - Lógica personalizada de acesso
+    # Exemplo: Vendedores só veem relatórios da própria região
+    if 'salesman' in user_roles:
+        if user_region == 'SP' and report_name_or_id in ['vendas_sp', 'clientes_sp']:
+            return True
+        return False
+```
+
+### 📍 Arquivo: `config.py` - Relatórios por Usuário
+
+**Localização:** Função `get_reports_for_user()` - Linha 230
+
+```python
+def get_reports_for_user(user_roles, user_region):
+    # ✅ LÓGICA DE FILTRO POR ROLE/REGIÃO ESTÁ AQUI
+    
+    for report_name, config in reports.items():
+        # Verificar roles (linha ~240)
+        required_roles = config.get('required_roles', [])
+        if required_roles and not any(role in user_roles for role in required_roles):
+            continue
+        
+        # ✅ ADICIONAR AQUI - Lógica personalizada
+        # Exemplo: Regra especial para região Sul
+        if user_region in ['RS', 'SC', 'PR'] and config['category'] == 'regional_sul':
+            accessible_reports[report_name] = config
+```
+
+---
+
+## 🚀 5. CONFIGURAÇÃO DE PRODUÇÃO
+
+### 📍 Railway - Variables (Interface Web)
+
+```env
+# ✅ ADICIONAR NO RAILWAY → Variables:
+
+# === CREDENCIAIS OBRIGATÓRIAS ===
+CLIENT_ID=seu_app_id_do_azure
+CLIENT_SECRET=seu_client_secret
+TENANT_ID=seu_tenant_id
+WORKSPACE_ID=workspace_principal_id
+SECRET_KEY=chave_super_secreta_123
+
+# === USUÁRIOS ===
+USERS_CONFIG={"admin":{"password":"REDACTED_SECRET","roles":["admin"],"region":"PR","name":"Admin","reports":["all"]}}
+
+# === RELATÓRIOS ===
+REPORT_ID_EXECUTIVO=id_do_relatorio
+REPORT_ID_VENDAS=id_do_relatorio_vendas
+METADATA_EXECUTIVO={"name":"Dashboard Executivo","category":"executivo","background_color":"#002951"}
+
+# === CONFIGURAÇÕES ===
+FLASK_ENV=production
+LOG_LEVEL=INFO
+ENABLE_RLS=false
+```
+
+### 📍 Arquivo: `procfile` (Para Railway)
+
+```
+# ✅ CONTEÚDO EXATO DO ARQUIVO:
+web: gunicorn app:app --bind 0.0.0.0:$PORT
+```
+
+### 📍 Arquivo: `runtime.txt` (Para Railway)
+
+```
+# ✅ CONTEÚDO EXATO DO ARQUIVO:
+python-3.11.0
+```
+
+---
+
+## 🔄 6. ADIÇÃO DE NOVAS FUNCIONALIDADES
+
+### 📍 Arquivo: `app.py` - Novas Rotas
+
+**Localização:** Após linha 300 (antes do `if __name__ == '__main__'`)
+
+```python
+# ✅ ADICIONAR AQUI - Novas rotas
+
+@app.route('/api/nova-funcionalidade')
+@login_required
+def nova_funcionalidade():
+    """Nova funcionalidade personalizada"""
+    user = get_current_user()
+    
+    # Sua lógica aqui
+    return jsonify({"status": "success"})
+
+@app.route('/admin/nova-pagina')
+@admin_required
+def nova_pagina_admin():
+    """Nova página administrativa"""
+    return render_template('nova_pagina.html')
+```
+
+### 📍 Arquivo: `powerbi_service.py` - Novos Métodos Power BI
+
+**Localização:** Classe `PowerBIService` - Após linha 400
+
+```python
+# ✅ ADICIONAR AQUI - Novos métodos
+
+def novo_metodo_powerbi(self, parametros):
+    """Novo método para integração Power BI"""
+    try:
+        # Sua lógica de integração
+        headers = self.get_headers()
+        response = requests.get(url, headers=headers)
+        return response.json()
+    except Exception as e:
+        logger.error(f"Erro no novo método: {e}")
+        raise
+```
+
+---
+
+## 🧪 7. SCRIPTS DE TESTE E DIAGNÓSTICO
+
+### 📍 Para Criar Novo Script de Teste
+
+**Localização:** Novo arquivo na raiz do projeto
+
+```python
+# ✅ CRIAR ARQUIVO: test_nova_funcionalidade.py
+
+#!/usr/bin/env python3
+"""Script para testar nova funcionalidade"""
+
+from config import Config
+from powerbi_service import PowerBIService
+
+def test_nova_funcionalidade():
+    print("🧪 Testando nova funcionalidade...")
+    
+    # Sua lógica de teste aqui
+    config = Config()
+    powerbi = PowerBIService()
+    
+    # Executar testes
+    
+    print("✅ Teste concluído!")
+
+if __name__ == "__main__":
+    test_nova_funcionalidade()
+```
+
+---
+
+## 📝 8. TEMPLATES HTML - INTERFACE
+
+### 📍 Arquivo: `templates/dashboard.html` - Adicionar Novos Elementos
+
+**Localização:** Dentro da div `reports-list` - Linha 150+
+
+```html
+<!-- ✅ ADICIONAR AQUI - Novos cards de relatório -->
+<div class="report-card">
+    <div class="report-title">
+        <span>📈</span>
+        Novo Dashboard
+    </div>
+    <div class="report-description">
+        Descrição do novo dashboard
+    </div>
+    <div class="report-actions">
+        <a href="{{ url_for('embed', report_name='novo_dashboard') }}" class="btn">
+            <span>👁️</span>
+            Visualizar
+        </a>
+    </div>
+</div>
+```
+
+### 📍 Arquivo: `templates/embed.html` - Personalizar Interface
+
+**Localização:** JavaScript no final - Linha 600+
+
+```javascript
+// ✅ ADICIONAR AQUI - Nova funcionalidade JavaScript
+
+function novaFuncionalidade() {
+    console.log('Nova funcionalidade executada');
+    
+    // Sua lógica aqui
+}
+
+// Adicionar ao event listener
+document.addEventListener('DOMContentLoaded', function() {
+    // Código existente...
+    
+    // ✅ ADICIONAR AQUI - Inicialização
+    novaFuncionalidade();
+});
+```
+
+---
+
+## 🔍 9. ONDE VERIFICAR LOGS E DEBUG
+
+### 📍 Railway (Produção)
+```
+1. Dashboard do Railway
+2. Seu Projeto
+3. Deployments
+4. View Logs
+```
+
+### 📍 Local (Desenvolvimento)
+```bash
+# Terminal onde roda python app.py
+# Logs aparecem no console
+```
+
+### 📍 Arquivo: `app.py` - Adicionar Logs Personalizados
+
+**Localização:** Qualquer função, usar:
+
+```python
+# ✅ ADICIONAR LOGS ASSIM:
+logger.info("✅ Mensagem de sucesso")
+logger.warning("⚠️ Mensagem de aviso")
+logger.error("❌ Mensagem de erro")
+logger.debug("🔍 Mensagem de debug")
+```
+
+---
+
+## 🎯 RESUMO - ARQUIVOS PRINCIPAIS
+
+| Alteração Desejada | Arquivo Principal | Linha Aproximada |
+|-------------------|------------------|------------------|
+| **Novo Usuário** | `auth.py` | 15-65 |
+| **Nova Role** | `auth.py` | 142+ |
+| **Novo Dashboard** | Railway Variables | - |
+| **Nome Dashboard** | Railway Variables | - |
+| **Cor Corporativa** | `config.py` | 30-50 |
+| **Permissão Acesso** | `auth.py` | 160+ |
+| **Nova Rota** | `app.py` | 300+ |
+| **Interface Visual** | `templates/*.html` | Varia |
+| **Integração Power BI** | `powerbi_service.py` | 400+ |
+
+---
+
+Este guia mostra **exatamente onde** fazer cada tipo de alteração no sistema. Use-o como referência rápida para implementações! 🚀

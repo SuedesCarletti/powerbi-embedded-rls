@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erro - Power BI Embedded</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #f5f5f5; 
+            margin: 0; 
+            padding: 20px;
+        }
+        .error-container { 
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 30px; 
+            background: white; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .error-icon {
+            font-size: 64px;
+            color: #d13438;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #d13438;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            word-wrap: break-word;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #0078d4;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px;
+        }
+        .btn:hover {
+            background: #106ebe;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">⚠️</div>
+        <h1>Ops! Algo deu errado</h1>
+        
+        <div class="error-message">
+            {{ error }}
+        </div>
+        
+        <div>
+            <a href="javascript:history.back()" class="btn btn-secondary">← Voltar</a>
+            <a href="{{ url_for('dashboard') if session.user else url_for('login') }}" class="btn">
+                🏠 Início
+            </a>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 15px; background: #e7f3ff; border-radius: 4px; font-size: 12px; color: #666;">
+            Se o problema persistir, verifique:
+            <ul style="text-align: left; margin: 10px 0; padding-left: 20px;">
+                <li>Se as variáveis de ambiente estão configuradas</li>
+                <li>Se o Service Principal tem acesso ao workspace</li>
+                <li>Se há relatórios disponíveis no workspace</li>
+                <li>Os logs da aplicação para mais detalhes</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

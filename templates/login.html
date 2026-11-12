@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Power BI Embedded</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .login-container { 
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+            width: 100%;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .logo-text {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .logo-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        
+        .form-group { 
+            margin-bottom: 1.5rem;
+        }
+        
+        label { 
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        input[type="text"], input[type="password"] { 
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-container {
+            margin-top: 2rem;
+        }
+        
+        button { 
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .alert { 
+            padding: 1rem;
+            background: #ffe6e6;
+            color: #d63384;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #d63384;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer-text {
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        .footer-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Loading state */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .loading button {
+            background: #6c757d;
+        }
+        
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsividade */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+            
+            .logo-icon {
+                font-size: 2.5rem;
+            }
+            
+            .logo-text {
+                font-size: 1.3rem;
+            }
+        }
+        
+        /* Modo escuro (opcional) */
+        @media (prefers-color-scheme: dark) {
+            .login-container {
+                background: rgba(20, 20, 30, 0.95);
+            }
+            
+            .logo-text, label {
+                color: #f8f9fa;
+            }
+            
+            .logo-subtitle {
+                color: #adb5bd;
+            }
+            
+            input[type="text"], input[type="password"] {
+                background: rgba(255, 255, 255, 0.1);
+                border-color: rgba(255, 255, 255, 0.2);
+                color: #f8f9fa;
+            }
+            
+            input[type="text"]::placeholder, input[type="password"]::placeholder {
+                color: #adb5bd;
+            }
+            
+            .footer-text {
+                color: #adb5bd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <span class="logo-icon">📊</span>
+            <div class="logo-text">Power BI Portal</div>
+            <div class="logo-subtitle">Relatórios Executivos</div>
+        </div>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert">
+                        <span>⚠️</span>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" id="loginForm">
+            <div class="form-group">
+                <label for="username">Usuário</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">👤</span>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        required 
+                        autocomplete="username"
+                        placeholder="Digite seu usuário"
+                    >
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required 
+                        autocomplete="current-password"
+                        placeholder="Digite sua senha"
+                    >
+                </div>
+            </div>
+            
+            <div class="btn-container">
+                <button type="submit" id="loginBtn">
+                    <span id="loginText">
+                        <span>🔐</span>
+                        Entrar
+                    </span>
+                    <div id="loginSpinner" class="loading-spinner" style="display: none;"></div>
+                </button>
+            </div>
+        </form>
+        
+        <div class="footer">
+            <div class="footer-text">
+                Desenvolvido com ❤️ para análises inteligentes<br>
+                <a href="#" class="footer-link" onclick="showInfo()">Sobre o sistema</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gerenciar estado de loading do form
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const form = this;
+            const button = document.getElementById('loginBtn');
+            const text = document.getElementById('loginText');
+            const spinner = document.getElementById('loginSpinner');
+            
+            // Mostrar loading
+            form.classList.add('loading');
+            text.style.display = 'none';
+            spinner.style.display = 'block';
+            
+            // Remover loading se a página não for redirecionada em 10s
+            setTimeout(() => {
+                form.classList.remove('loading');
+                text.style.display = 'flex';
+                spinner.style.display = 'none';
+            }, 10000);
+        });
+        
+        // Focar no primeiro campo
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('username').focus();
+        });
+        
+        // Enter para próximo campo
+        document.getElementById('username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('password').focus();
+            }
+        });
+        
+        // Mostrar informações do sistema
+        function showInfo() {
+            alert(`
+Power BI Embedded Portal
+
+✨ Funcionalidades:
+• Relatórios personalizados por região
+• Controles baseados no perfil do usuário
+• Interface responsiva
+• Segurança com autenticação
+
+🔧 Desenvolvido com:
+• Flask + Python
+• Power BI Embedded API
+• Azure AD Service Principal
+
+📧 Para suporte, contate o administrador do sistema.
+            `.trim());
+        }
+        
+        // Adicionar animação aos campos quando focados
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Validação básica em tempo real
+        document.getElementById('username').addEventListener('input', function() {
+            const value = this.value.trim();
+            if (value.length > 0 && value.length < 3) {
+                this.style.borderColor = '#ffc107';
+            } else if (value.length >= 3) {
+                this.style.borderColor = '#28a745';
+            } else {
+                this.style.borderColor = '#e9ecef';
+            }
+        });
+        
+        document.getElementById('password').addEventListener('input', function() {
+            const value = this.value;
+            if (value.length > 0 && value.length < 4) {
+                this.style.borderColor = '#ffc107';
+            } else if (value.length >= 4) {
+                this.style.borderColor = '#28a745';
+            } else {
+                this.style.borderColor = '#e9ecef';
+            }
+        });
+    </script>
+</body>
+</html>

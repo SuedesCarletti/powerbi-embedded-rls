@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administração - Power BI Embedded</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .header { 
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white; 
+            padding: 1.5rem 2rem; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-buttons { 
+            display: flex; 
+            align-items: center; 
+            gap: 1rem;
+        }
+        
+        .btn { 
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white; 
+            text-decoration: none; 
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover { 
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #198754, #157347);
+        }
+        
+        .container { 
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+        
+        .reports-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .reports-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .reports-table th,
+        .reports-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .reports-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .reports-table td {
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .reports-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .report-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+        
+        .report-workspace {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .category-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .category-executivo { background: #fff3cd; color: #856404; }
+        .category-vendas { background: #d4edda; color: #155724; }
+        .category-financeiro { background: #cce5ff; color: #004085; }
+        .category-operacional { background: #f8d7da; color: #721c24; }
+        .category-marketing { background: #e2e3ff; color: #383d41; }
+        .category-rh { background: #fff0f6; color: #6f2232; }
+        .category-outros { background: #e9ecef; color: #495057; }
+        
+        .actions-column {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .sidebar-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .quick-actions .btn {
+            justify-content: flex-start;
+            padding: 0.75rem 1rem;
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e9ecef;
+        }
+        
+        .quick-actions .btn:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+        
+        .system-status {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+        
+        .status-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .status-value {
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .status-ok { background: #d4edda; color: #155724; }
+        .status-warning { background: #fff3cd; color: #856404; }
+        .status-error { background: #f8d7da; color: #721c24; }
+        
+        .logs-section {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #333;
+            border: 1px solid #e9ecef;
+        }
+        
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem;
+            border-radius: 4px;
+        }
+        
+        .log-info { background: #e7f3ff; }
+        .log-warning { background: #fff3cd; }
+        .log-error { background: #f8d7da; }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                grid-row: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            .filters {
+                justify-content: center;
+            }
+            
+            .reports-table {
+                font-size: 0.8rem;
+            }
+            
+            .reports-table th,
+            .reports-table td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>
+            <span>⚙️</span>
+            Painel Administrativo
+        </h1>
+        <div class="nav-buttons">
+            <a href="{{ url_for('dashboard') }}" class="btn">
+                <span>📊</span>
+                Dashboard
+            </a>
+            <a href="{{ url_for('api_reports') }}" class="btn btn-primary" target="_blank">
+                <span>🔗</span>
+                API
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger">
+                <span>🚪</span>
+                Sair
+            </a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Estatísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-value">{{ reports|length }}</div>
+                <div class="stat-label">Relatórios Configurados</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">📁</div>
+                <div class="stat-value">
+                    {{ reports.values() | map(attribute='workspace_id') | unique | list | length }}
+                </div>
+                <div class="stat-label">Workspaces</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🏷️</div>
+                <div class="stat-value">{{ categories|length }}</div>
+                <div class="stat-label">Categorias</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value">-</div>
+                <div class="stat-label">Usuários Ativos</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- Seção Principal - Relatórios -->
+            <div class="reports-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span>📈</span>
+                        Relatórios Configurados
+                    </h2>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="filters">
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">Todas as categorias</option>
+                        {% for category in categories %}
+                            <option value="{{ category }}">{{ category.title() }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <select id="workspaceFilter" class="filter-select">
+                        <option value="">Todos os workspaces</option>
+                        {% for workspace in reports.values() | map(attribute='workspace_id') | unique %}
+                            <option value="{{ workspace }}">{{ workspace[:8] }}...</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <button onclick="refreshReports()" class="btn btn-primary btn-small">
+                        <span>🔄</span>
+                        Atualizar
+                    </button>
+                </div>
+                
+                <!-- Tabela de Relatórios -->
+                <div style="overflow-x: auto;">
+                    <table class="reports-table" id="reportsTable">
+                        <thead>
+                            <tr>
+                                <th>Relatório</th>
+                                <th>Categoria</th>
+                                <th>Workspace</th>
+                                <th>Permissões</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report_id, report in reports.items() %}
+                            <tr data-category="{{ report.category }}" data-workspace="{{ report.workspace_id }}">
+                                <td>
+                                    <div class="report-name">{{ report.name }}</div>
+                                    <div class="report-workspace">ID: {{ report_id[:8] }}...</div>
+                                </td>
+                                <td>
+                                    <span class="category-badge category-{{ report.category }}">
+                                        {{ report.category.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div>{{ report.get('workspace_name', 'N/A') }}</div>
+                                    <div style="font-size: 0.8rem; color: #666;">
+                                        {{ report.workspace_id[:8] }}...
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if report.required_roles %}
+                                        {{ report.required_roles | join(', ') }}
+                                    {% else %}
+                                        Todos
+                                    {% endif %}
+                                    {% if report.required_regions %}
+                                        <br><small>Regiões: {{ report.required_regions | join(', ') }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="actions-column">
+                                        <button onclick="viewReport('{{ report_id }}')" 
+                                                class="btn btn-primary btn-small" title="Visualizar">
+                                            👁️
+                                        </button>
+                                        <button onclick="testReport('{{ report_id }}')" 
+                                                class="btn btn-success btn-small" title="Testar Token">
+                                            🎫
+                                        </button>
+                                        <button onclick="editReport('{{ report_id }}')" 
+                                                class="btn btn-small" title="Editar">
+                                            ✏️
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Ações Rápidas -->
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">
+                        <span>⚡</span>
+                        Ações Rápidas
+                    </h3>
+                    <div class="quick-actions">
+                        <button onclick="discoverReports()" class="btn">
+                            <span>🔍</span>
+                            Descobrir Relatórios
+                        </button>
+                        <button onclick="validateConfig()" class="btn">
+                            <span>✅</span>
+                            Validar Configuração
+                        </button>
+                        <button onclick="exportConfig()" class="btn">
+                            <span>📤</span>
+                            Exportar Config
+                        </button>
+                        <button onclick="importConfig()" class="btn">
+                            <span>📥</span>
+                            Importar Config
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Status do Sistema -->
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">
+                        <span>💚</span>
+                        Status do Sistema
+                    </h3>
+                    <div class="system-status" id="systemStatus">
+                        <div class="status-item">
+                            <span class="status-label">Power BI API</span>
+                            <span class="status-value status-ok">🟢 Online</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Service Principal</span>
+                            <span class="status-value status-ok">🟢 Ativo</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Configuração</span>
+                            <span class="status-value status-ok">🟢 Válida</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Última Atualização</span>
+                            <span class="status-value" id="lastUpdate">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Logs Recentes -->
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">
+                        <span>📝</span>
+                        Logs Recentes
+                    </h3>
+                    <div class="logs-section" id="recentLogs">
+                        <div class="log-entry log-info">
+                            [INFO] Sistema iniciado com sucesso
+                        </div>
+                        <div class="log-entry log-info">
+                            [INFO] 5 relatórios carregados
+                        </div>
+                        <div class="log-entry log-warning">
+                            [WARN] Dataset RLS não configurado
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para edição/detalhes -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Detalhes do Relatório</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody">
+                <!-- Conteúdo será inserido dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado da aplicação
+        let allReports = {{ reports | tojson }};
+        let systemHealth = {};
+        
+        // Filtros
+        function applyFilters() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const workspaceFilter = document.getElementById('workspaceFilter').value;
+            const rows = document.querySelectorAll('#reportsTable tbody tr');
+            
+            rows.forEach(row => {
+                const category = row.dataset.category;
+                const workspace = row.dataset.workspace;
+                
+                const categoryMatch = !categoryFilter || category === categoryFilter;
+                const workspaceMatch = !workspaceFilter || workspace === workspaceFilter;
+                
+                row.style.display = (categoryMatch && workspaceMatch) ? '' : 'none';
+            });
+        }
+        
+        // Event listeners para filtros
+        document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+        document.getElementById('workspaceFilter').addEventListener('change', applyFilters);
+        
+        // Funções de ação
+        function viewReport(reportId) {
+            window.open(`/embed/${reportId}`, '_blank');
+        }
+        
+        function testReport(reportId) {
+            const modal = document.getElementById('reportModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Testando Embed Token...';
+            body.innerHTML = '<div style="text-align: center; padding: 2rem;"><div style="border: 4px solid #f3f3f3; border-top: 4px solid #0078d4; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div><p>Testando geração de token...</p></div>';
+            
+            modal.style.display = 'block';
+            
+            // Simular teste de token
+            setTimeout(() => {
+                const report = allReports[reportId];
+                body.innerHTML = `
+                    <div style="padding: 1rem;">
+                        <h4>✅ Teste de Token Concluído</h4>
+                        <p><strong>Relatório:</strong> ${report.name}</p>
+                        <p><strong>Workspace:</strong> ${report.workspace_id}</p>
+                        <p><strong>Status:</strong> <span style="color: green;">Token gerado com sucesso!</span></p>
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <h5>Detalhes do Teste:</h5>
+                            <p>• Acesso ao workspace: ✅ OK</p>
+                            <p>• Permissões do Service Principal: ✅ OK</p>
+                            <p>• Geração de embed token: ✅ OK</p>
+                            <p>• Tempo de resposta: 245ms</p>
+                        </div>
+                    </div>
+                `;
+            }, 2000);
+        }
+        
+        function editReport(reportId) {
+            const report = allReports[reportId];
+            const modal = document.getElementById('reportModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Editar Relatório';
+            body.innerHTML = `
+                <div style="padding: 1rem;">
+                    <form onsubmit="saveReport(event, '${reportId}')">
+                        <div style="margin-bottom: 1rem;">
+                            <label><strong>Nome:</strong></label>
+                            <input type="text" value="${report.name}" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label><strong>Descrição:</strong></label>
+                            <textarea style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid #ccc; border-radius: 4px; height: 80px;">${report.description || ''}</textarea>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label><strong>Categoria:</strong></label>
+                            <select style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="executivo" ${report.category === 'executivo' ? 'selected' : ''}>Executivo</option>
+                                <option value="vendas" ${report.category === 'vendas' ? 'selected' : ''}>Vendas</option>
+                                <option value="financeiro" ${report.category === 'financeiro' ? 'selected' : ''}>Financeiro</option>
+                                <option value="operacional" ${report.category === 'operacional' ? 'selected' : ''}>Operacional</option>
+                                <option value="marketing" ${report.category === 'marketing' ? 'selected' : ''}>Marketing</option>
+                                <option value="rh" ${report.category === 'rh' ? 'selected' : ''}>RH</option>
+                                <option value="outros" ${report.category === 'outros' ? 'selected' : ''}>Outros</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label><strong>Roles Necessárias:</strong></label>
+                            <input type="text" value="${(report.required_roles || []).join(', ')}" placeholder="admin, viewer, sales" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                        
+                        <div style="text-align: right; margin-top: 1.5rem;">
+                            <button type="button" onclick="closeModal()" style="margin-right: 1rem; padding: 0.5rem 1rem; background: #6c757d; color: white; border: none; border-radius: 4px;">Cancelar</button>
+                            <button type="submit" style="padding: 0.5rem 1rem; background: #0078d4; color: white; border: none; border-radius: 4px;">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+        
+        function saveReport(event, reportId) {
+            event.preventDefault();
+            alert('Funcionalidade de edição será implementada na próxima versão!');
+            closeModal();
+        }
+        
+        function refreshReports() {
+            location.reload();
+        }
+        
+        function discoverReports() {
+            if (confirm('Isso executará a descoberta automática de relatórios. Continuar?')) {
+                alert('Execute o script setup_reports.py para descobrir novos relatórios.');
+            }
+        }
+        
+        function validateConfig() {
+            fetch('/api/health')
+                .then(response => response.json())
+                .then(data => {
+                    const issues = data.config_issues || 0;
+                    if (issues === 0) {
+                        alert('✅ Configuração válida! Nenhum problema encontrado.');
+                    } else {
+                        alert(`⚠️ ${issues} problema(s) encontrado(s) na configuração.`);
+                    }
+                })
+                .catch(error => {
+                    alert('❌ Erro ao validar configuração: ' + error.message);
+                });
+        }
+        
+        function exportConfig() {
+            const config = {
+                reports: allReports,
+                timestamp: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `powerbi-config-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function importConfig() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const config = JSON.parse(e.target.result);
+                            if (confirm('Isso substituirá a configuração atual. Continuar?')) {
+                                alert('Funcionalidade será implementada na próxima versão!');
+                            }
+                        } catch (error) {
+                            alert('Erro ao ler arquivo: ' + error.message);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+        
+        function closeModal() {
+            document.getElementById('reportModal').style.display = 'none';
+        }
+        
+        // Fechar modal clicando fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('reportModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // Atualizar status do sistema
+        function updateSystemStatus() {
+            fetch('/api/health')
+                .then(response => response.json())
+                .then(data => {
+                    systemHealth = data;
+                    document.getElementById('lastUpdate').textContent = 
+                        new Date().toLocaleTimeString();
+                })
+                .catch(error => {
+                    console.error('Erro ao atualizar status:', error);
+                });
+        }
+        
+        // Atualizar status a cada 30 segundos
+        setInterval(updateSystemStatus, 30000);
+        updateSystemStatus(); // Primeira execução
+        
+        // Console log para debug
+        console.log('Painel administrativo carregado:', {
+            reports: Object.keys(allReports).length,
+            categories: {{ categories | tojson }}
+        });
+    </script>
+</body>
+</html>

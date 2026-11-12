@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Power BI Embedded</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .header { 
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white; 
+            padding: 1.5rem 2rem; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .user-info { 
+            display: flex; 
+            align-items: center; 
+            gap: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .user-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .admin-badge {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .container { 
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .welcome-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .welcome-title {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-subtitle {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .user-stats {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #555;
+            font-size: 0.9rem;
+        }
+        
+        .reports-grid {
+            display: grid;
+            gap: 2rem;
+        }
+        
+        .category-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .category-icon {
+            font-size: 1.5rem;
+        }
+        
+        .category-title {
+            color: #333;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        
+        .category-count {
+            background: #667eea;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .reports-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .report-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .report-title {
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .report-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 1.5rem;
+        }
+        
+        .report-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: auto;
+        }
+        
+        .btn { 
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            text-decoration: none; 
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+        }
+        
+        .logout-btn { 
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+        
+        .logout-btn:hover { 
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Category Icons */
+        .category-executivo .category-icon::before { content: '👑'; }
+        .category-vendas .category-icon::before { content: '📈'; }
+        .category-financeiro .category-icon::before { content: '💰'; }
+        .category-operacional .category-icon::before { content: '⚙️'; }
+        .category-marketing .category-icon::before { content: '📢'; }
+        .category-rh .category-icon::before { content: '👥'; }
+        .category-outros .category-icon::before { content: '📊'; }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                gap: 1rem;
+                width: 100%;
+            }
+            
+            .user-stats {
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .reports-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-section {
+                padding: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .report-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                text-align: center;
+                justify-content: center;
+            }
+        }
+        
+        /* Animações */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .report-card {
+            animation: slideInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translate3d(0, 40px, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>
+            <span>📊</span>
+            Dashboard Executivo
+        </h1>
+        <div class="user-info">
+            <div class="user-badge {% if 'admin' in user.get('roles', []) %}admin-badge{% endif %}">
+                {% if 'admin' in user.get('roles', []) %}
+                    <span>👑</span>
+                {% else %}
+                    <span>👁️</span>
+                {% endif %}
+                <span>{{ user.get('name', user.username) }}</span>
+            </div>
+            <div class="user-badge">
+                <span>🌍</span>
+                <span>{{ user.region }}</span>
+            </div>
+            <a href="{{ url_for('logout') }}" class="btn logout-btn">
+                <span>🚪</span>
+                Sair
+            </a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="welcome-section fade-in">
+            <div class="welcome-title">
+                Bem-vindo, {{ user.get('name', user.username) }}! 👋
+            </div>
+            <div class="welcome-subtitle">
+                Aqui estão os relatórios disponíveis para sua região e perfil.
+            </div>
+            
+            <div class="user-stats">
+                <div class="stat-item">
+                    <span>👤</span>
+                    <span><strong>Usuário:</strong> {{ user.username }}</span>
+                </div>
+                <div class="stat-item">
+                    <span>🏷️</span>
+                    <span><strong>Perfil:</strong> {{ user.roles|join(', ') }}</span>
+                </div>
+                <div class="stat-item">
+                    <span>📍</span>
+                    <span><strong>Região:</strong> {{ user.region }}</span>
+                </div>
+                <div class="stat-item">
+                    <span>📊</span>
+                    <span><strong>Relatórios:</strong> 
+                        {% set total_reports = reports_by_category.values() | map('length') | sum %}
+                        {{ total_reports }} disponível(eis)
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        {% if reports_by_category %}
+            <div class="reports-grid">
+                {% for category, reports in reports_by_category.items() %}
+                    <div class="category-section category-{{ category }} fade-in">
+                        <div class="category-header">
+                            <div class="category-icon"></div>
+                            <div class="category-title">{{ category }}</div>
+                            <div class="category-count">{{ reports|length }}</div>
+                        </div>
+                        
+                        <div class="reports-list">
+                            {% for report in reports %}
+                                <div class="report-card" style="animation-delay: {{ loop.index0 * 0.1 }}s">
+                                    <div class="report-title">
+                                        <span>📈</span>
+                                        {{ report.name }}
+                                    </div>
+                                    
+                                    {% if report.description %}
+                                        <div class="report-description">
+                                            {{ report.description }}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="report-actions">
+                                        <!-- CORREÇÃO: Usando report_name em vez de report_id -->
+                                        <a href="{{ url_for('embed', report_name=report.id) }}" class="btn">
+                                            <span>👁️</span>
+                                            Visualizar
+                                        </a>
+                                        {% if 'admin' in user.get('roles', []) %}
+                                            <button onclick="openReportInfo('{{ report.id }}')" class="btn btn-secondary">
+                                                <span>ℹ️</span>
+                                                Info
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="category-section">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <h3>Nenhum relatório disponível</h3>
+                    <p>Não há relatórios configurados para seu perfil e região.</p>
+                    {% if 'admin' in user.get('roles', []) %}
+                        <p style="margin-top: 1rem;">
+                            <a href="/admin/reports" class="btn">
+                                <span>⚙️</span>
+                                Configurar Relatórios
+                            </a>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        
+        {% if 'admin' in user.get('roles', []) %}
+            <div class="category-section fade-in" style="margin-top: 2rem;">
+                <div class="category-header">
+                    <div class="category-icon">⚙️</div>
+                    <div class="category-title">Administração</div>
+                </div>
+                
+                <div class="reports-list">
+                    <div class="report-card">
+                        <div class="report-title">
+                            <span>🛠️</span>
+                            Gerenciar Relatórios
+                        </div>
+                        <div class="report-description">
+                            Configure workspaces, relatórios e permissões de usuários.
+                        </div>
+                        <div class="report-actions">
+                            <a href="/admin/reports" class="btn">
+                                <span>⚙️</span>
+                                Acessar
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card">
+                        <div class="report-title">
+                            <span>📊</span>
+                            Status do Sistema
+                        </div>
+                        <div class="report-description">
+                            Verifique a saúde da aplicação e conectividade com Power BI.
+                        </div>
+                        <div class="report-actions">
+                            <a href="/api/health" class="btn btn-secondary" target="_blank">
+                                <span>🔍</span>
+                                Verificar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Função para abrir informações do relatório (admin)
+        function openReportInfo(reportName) {
+            fetch(`/api/reports`)
+                .then(response => response.json())
+                .then(data => {
+                    const report = data.reports.find(r => r.id === reportName);
+                    if (report) {
+                        alert(`
+Relatório: ${report.name}
+ID: ${report.id}
+Categoria: ${report.category}
+Descrição: ${report.description}
+URL: ${report.embed_url}
+                        `.trim());
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao obter info do relatório:', error);
+                    alert('Erro ao obter informações do relatório.');
+                });
+        }
+        
+        // Adicionar delay nas animações dos cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.report-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+        
+        // Função para testar relatório
+        function testReport(reportName) {
+            // CORREÇÃO: Usando report_name em vez de report_id
+            window.open(`{{ url_for('embed', report_name='') }}${reportName}`, '_blank');
+        }
+        
+        // Console log para debug (apenas admin)
+        {% if 'admin' in user.get('roles', []) %}
+        console.log('Dashboard carregado para admin:', {
+            user: {{ user | tojson }},
+            reports: {{ reports_by_category | tojson }}
+        });
+        {% endif %}
+    </script>
+</body>
+</html>
