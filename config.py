@@ -116,7 +116,7 @@ class Config:
             logger.warning(f"{metadata_key} contém JSON inválido, usando valores padrão")
             metadata = {}
         
-        # NOVO: Definir cor de fundo baseada na categoria ou usar corporativa
+  # Definir cor de fundo baseada na categoria ou usar corporativa
         category = metadata.get("category", "outros").lower()
         
         # Cores por categoria, todas baseadas na cor corporativa
@@ -149,7 +149,7 @@ class Config:
             "embed_url": "",  # Preenchido dinamicamente
             "web_url": "",    # Preenchido dinamicamente
             "workspace_name": metadata.get("workspace_name", "Workspace Principal"),
-            "background_color": background_color,  # NOVO: Sempre incluir cor de fundo
+            "background_color": background_color,  # Sempre incluir cor de fundo
             "text_color": "#ffffff" if background_color == Config.CORPORATE_PRIMARY_COLOR else "#333333"  # Cor do texto baseada no fundo
         }
         
@@ -167,7 +167,7 @@ class Config:
             dict: Dicionário com nomes de relatórios como chaves e configurações como valores
         """
         
-        # SISTEMA NOVO: Carregar relatórios individuais das variáveis de ambiente
+        # SISTEMA Carregar relatórios individuais das variáveis de ambiente
         report_names = Config._get_report_names_from_env()
         
         if report_names:

@@ -372,7 +372,7 @@ class PowerBIDiagnostics:
         
         print("\nResultados por teste:")
         for test_name, result in results:
-            icon = "✅" if result else "❌"
+            icon = "" if result else "❌"
             print(f"  {icon} {test_name}")
             
         # Recomendações

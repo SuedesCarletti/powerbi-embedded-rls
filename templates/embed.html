@@ -603,7 +603,7 @@
             console.log(`🔧 Overlay ajustado: altura=${newHeight}, margem=${newMargin}`);
             
             // Mostrar feedback visual
-            alert(`✅ Overlay ajustado!\nAltura: ${newHeight}\nPara aplicar permanentemente, atualize o CSS com:\n--overlay-height: ${newHeight};\n--overlay-margin-top: ${newMargin};`);
+            alert(`Overlay ajustado!\nAltura: ${newHeight}\nPara aplicar permanentemente, atualize o CSS com:\n--overlay-height: ${newHeight};\n--overlay-margin-top: ${newMargin};`);
         }
         
         function resetOverlay() {
@@ -731,7 +731,7 @@
                 
                 currentReport.off("loaded");
                 currentReport.on("loaded", () => {
-                    console.log(`✅ Relatório '${CURRENT_REPORT_NAME}' carregado com sucesso!`);
+                    console.log(`Relatório '${CURRENT_REPORT_NAME}' carregado com sucesso!`);
                     document.querySelector('.powerbi-background-overlay').style.opacity = '0';
                     
                     setTimeout(() => {
@@ -895,7 +895,7 @@
         
         function resetToDefault() {
             setTheme(DEFAULT_BACKGROUND_COLOR);
-            alert(`✅ Cor corporativa padrão restaurada: ${DEFAULT_BACKGROUND_COLOR}`);
+            alert(`Cor corporativa padrão restaurada: ${DEFAULT_BACKGROUND_COLOR}`);
         }
         
         async function toggleFilters() {
@@ -946,7 +946,7 @@
             try {
                 await currentReport.refresh();
                 console.log('🔄 Relatório atualizado');
-                alert('✅ Relatório atualizado com sucesso!');
+                alert('Relatório atualizado com sucesso!');
             } catch (error) {
                 console.error('Erro ao atualizar relatório:', error);
                 alert('❌ Erro ao atualizar relatório. Veja o console para detalhes.');
@@ -959,7 +959,7 @@
             try {
                 await currentReport.exportToPDF();
                 console.log('📤 Relatório exportado como PDF');
-                alert('✅ Exportação iniciada! O download começará em instantes.');
+                alert('Exportação iniciada! O download começará em instantes.');
             } catch (error) {
                 console.error('Erro ao exportar relatório:', error);
                 alert('❌ Erro ao exportar relatório. Veja o console para detalhes.');

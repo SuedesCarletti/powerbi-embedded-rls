@@ -3,6 +3,7 @@ from powerbi_service import PowerBIService
 from auth import login_required, authenticate_user, get_user_identity, user_can_access_report, admin_required, get_current_user
 from config import Config
 import json
+import os
 import logging
 import traceback
 from datetime import datetime
@@ -15,6 +16,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    # true quando o app estiver atrás de HTTPS (cookie Secure não persiste em HTTP puro)
+    SESSION_COOKIE_SECURE=os.environ.get('SESSION_COOKIE_SECURE', 'false').lower() == 'true',
+)
 app.config.from_object(Config)
 
 # Inicializar PowerBIService

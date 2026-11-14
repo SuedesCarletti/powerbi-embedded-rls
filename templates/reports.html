@@ -571,7 +571,7 @@
                 <!-- Ações Rápidas -->
                 <div class="sidebar-card">
                     <h3 class="sidebar-title">
-                        <span>⚡</span>
+                        <span></span>
                         Ações Rápidas
                     </h3>
                     <div class="quick-actions">
@@ -580,7 +580,7 @@
                             Descobrir Relatórios
                         </button>
                         <button onclick="validateConfig()" class="btn">
-                            <span>✅</span>
+                            <span></span>
                             Validar Configuração
                         </button>
                         <button onclick="exportConfig()" class="btn">
@@ -701,15 +701,15 @@
                 const report = allReports[reportId];
                 body.innerHTML = `
                     <div style="padding: 1rem;">
-                        <h4>✅ Teste de Token Concluído</h4>
+                        <h4>Teste de Token Concluído</h4>
                         <p><strong>Relatório:</strong> ${report.name}</p>
                         <p><strong>Workspace:</strong> ${report.workspace_id}</p>
                         <p><strong>Status:</strong> <span style="color: green;">Token gerado com sucesso!</span></p>
                         <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
                             <h5>Detalhes do Teste:</h5>
-                            <p>• Acesso ao workspace: ✅ OK</p>
-                            <p>• Permissões do Service Principal: ✅ OK</p>
-                            <p>• Geração de embed token: ✅ OK</p>
+                            <p>• Acesso ao workspace: OK</p>
+                            <p>• Permissões do Service Principal: OK</p>
+                            <p>• Geração de embed token: OK</p>
                             <p>• Tempo de resposta: 245ms</p>
                         </div>
                     </div>
@@ -788,7 +788,7 @@
                 .then(data => {
                     const issues = data.config_issues || 0;
                     if (issues === 0) {
-                        alert('✅ Configuração válida! Nenhum problema encontrado.');
+                        alert('Configuração válida! Nenhum problema encontrado.');
                     } else {
                         alert(`⚠️ ${issues} problema(s) encontrado(s) na configuração.`);
                     }
